@@ -57,7 +57,7 @@
 
         .navbar-brand {
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -65,8 +65,8 @@
 
         .nav-link {
             font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            border-radius: 8px;
+            padding: 0.5rem 1.5rem !important;
+            border-radius: 50px;
             transition: all 0.3s ease;
         }
 
@@ -199,27 +199,18 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="features.html">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="solutions.html">Solutions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="analytics.html">Analytics</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="pricing.html">Pricing</a>
-                    </li>
-                    
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="features.html">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="solutions.html">Solutions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="analytics.html">Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pricing.html">Pricing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
                 </ul>
                 <div class="d-flex gap-2 align-items-center">
                     <button class="btn btn-link text-secondary" id="themeToggle">
                         <i class="fas fa-moon"></i>
-                    
+                    </button>
+                    <div id="navbarActions"></div>
                 </div>
             </div>
         </div>
