@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analytics Dashboard | GenAI SalesPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --primary-dark: #3a56d4;
+            --secondary: #6c63ff;
+            --accent: #ff6b8b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --darker: #0a0f1f;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+        }
+
+        [data-bs-theme="light"] {
+            --dark: #f8fafc;
+            --darker: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), var(--darker));
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-bs-theme="light"] .navbar {
+            background: rgba(248, 250, 252, 0.95) !important;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(74, 107, 255, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Metrics Cards */
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0.5rem 0;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .metric-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .metric-trend.up {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .metric-trend.down {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* Real-time Badge */
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(74, 107, 255, 0.2));
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        /* AI Insight Badge */
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, rgba(74, 107, 255, 0.15), rgba(108, 99, 255, 0.15));
+            border: 1px solid rgba(74, 107, 255, 0.3);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--primary);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-top: 1rem;
+        }
+
+        /* AI Chat Panel */
+        .ai-chat-panel {
+            position: fixed;
+            right: -420px;
+            top: 70px;
+            width: 400px;
+            height: calc(100vh - 90px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px 0 0 20px;
+            box-shadow: -10px 0 50px rgba(0, 0, 0, 0.3);
+            transition: right 0.4s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-chat-panel.active {
+            right: 0;
+        }
+
+        .ai-chat-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px 0 0 0;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .ai-message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--darker);
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .ai-message strong {
+            color: var(--primary);
+        }
+
+        /* Predictive Chart Overlay */
+        .prediction-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(74, 107, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 0 16px 0 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Progress Bar */
+        .progress-custom {
+            height: 8px;
+            background: rgba(74, 107, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* Alerts */
+        .alert-card {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid;
+        }
+
+        .alert-card.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+        }
+
+        .alert-card.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .alert-card.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger);
+        }
+
+        /* Floating Action Button */
+        .fab-ai {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(74, 107, 255, 0.4);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .fab-ai:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(74, 107, 255, 0.6);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .chart-container {
+                height: 250px;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+
+            .ai-chat-panel {
+                width: 100%;
+                right: -100%;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand gradient-text fw-bold" href="index.html">
+                <i class="fas fa-brain me-2"></i>GenAI SalesPro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+           <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="features.html">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="solutions.html">Solutions</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="analytics.html">Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pricing.html">Pricing</a></li>
+                    
+                </ul>
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-link text-secondary" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid" style="padding-top: 90px; padding-bottom: 3rem;">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-6 fw-bold mb-2">
+                                <i class="fas fa-chart-line gradient-text me-2"></i>
+                                AI Analytics Dashboard
+                            </h1>
+                            <p class="text-secondary mb-0">Real-time data analysis with predictive AI insights</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="live-badge">
+                                <div class="live-dot"></div>
+                                LIVE DATA STREAM
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="glass-card metric-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="metric-label">Total Revenue</div>
+                            <div class="metric-value" id="totalRevenue">$0</div>
+                            <div class="metric-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="revenueTrend">+0%</span>
+                            </div>
+                        </div>
+                        <div class="ai-badge">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="glass-card metric-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="metric-label">New Leads</div>
+                            <div class="metric-value" id="newLeads">0</div>
+                            <div class="metric-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="leadsTrend">+0%</span>
+                            </div>
+                        </div>
+                        <div class="ai-badge">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="glass-card metric-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="metric-label">Conversion Rate</div>
+                            <div class="metric-value" id="conversionRate">0%</div>
+                            <div class="progress-custom mt-2">
+                                <div class="progress-fill" id="conversionProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="ai-badge">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="glass-card metric-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="metric-label">AI Accuracy</div>
+                            <div class="metric-value" id="aiAccuracy">0%</div>
+                            <div class="progress-custom mt-2">
+                                <div class="progress-fill" id="accuracyProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="ai-badge">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-8" data-aos="fade-up">
+                <div class="glass-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-area me-2"></i>Revenue Trends & AI Predictions
+                        </h5>
+                        <span class="prediction-overlay">
+                            <i class="fas fa-brain me-1"></i>AI Forecast
+                        </span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="glass-card h-100">
+                    <h5 class="mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>AI Insights
+                    </h5>
+                    <div id="aiInsights">
+                        <div class="alert-card success">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fas fa-check-circle mt-1"></i>
+                                <div>
+                                    <strong class="d-block mb-1">Revenue Spike Detected</strong>
+                                    <small class="text-secondary">AI detected 28% increase in conversions this week</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert-card warning">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fas fa-exclamation-triangle mt-1"></i>
+                                <div>
+                                    <strong class="d-block mb-1">Lead Quality Alert</strong>
+                                    <small class="text-secondary">15% drop in lead engagement detected</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert-card success">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fas fa-star mt-1"></i>
+                                <div>
+                                    <strong class="d-block mb-1">Peak Performance</strong>
+                                    <small class="text-secondary">Best sales hour: 10-11 AM (38% conversions)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Analytics Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-4" data-aos="fade-up">
+                <div class="glass-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-users-cog me-2"></i>Customer Segmentation
+                    </h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="segmentationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="glass-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-funnel-dollar me-2"></i>Sales Funnel
+                    </h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="glass-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-globe me-2"></i>Geographic Distribution
+                    </h5>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="geoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Predictions -->
+        <div class="row g-3">
+            <div class="col-12" data-aos="fade-up">
+                <div class="glass-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-crystal-ball me-2"></i>AI-Powered Predictions (Next 30 Days)
+                    </h5>
+                    <div class="chart-container">
+                        <canvas id="predictionsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Panel -->
+    <div class="ai-chat-panel" id="aiChatPanel">
+        <div class="ai-chat-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Analytics Assistant</h5>
+                    <small class="opacity-75">Ask me anything about your data</small>
+                </div>
+                <button class="btn btn-sm btn-light" onclick="toggleAIChat()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message">
+                <strong>🤖 AI Assistant:</strong>
+                <p class="mb-0 mt-2">Hello! I'm analyzing your sales data in real-time. I can help you with:</p>
+                <ul class="mt-2 mb-0">
+                    <li>Trend analysis and forecasting</li>
+                    <li>Customer behavior insights</li>
+                    <li>Performance optimization</li>
+                    <li>Anomaly detection</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="p-3 border-top">
+            <div class="input-group">
+                <input type="text" class="form-control" id="aiChatInput" placeholder="Ask about trends, predictions...">
+                <button class="btn btn-primary" onclick="sendAIMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <div class="fab-ai" onclick="toggleAIChat()">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({ duration: 800, once: true });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-bs-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', newTheme);
+            themeToggle.querySelector('i').className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-bs-theme', savedTheme);
+        themeToggle.querySelector('i').className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+        // AI Chat Toggle
+        function toggleAIChat() {
+            document.getElementById('aiChatPanel').classList.toggle('active');
+        }
+
+        // Send AI Message
+        function sendAIMessage() {
+            const input = document.getElementById('aiChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const messagesDiv = document.getElementById('aiChatMessages');
+            
+            // Add user message
+            messagesDiv.innerHTML += `
+                <div class="ai-message" style="background: rgba(74, 107, 255, 0.1); border-left-color: var(--accent);">
+                    <strong>You:</strong>
+                    <p class="mb-0 mt-1">${message}</p>
+                </div>
+            `;
+
+            input.value = '';
+
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = getAIResponse(message.toLowerCase());
+                messagesDiv.innerHTML += `
+                    <div class="ai-message">
+                        <strong>🤖 AI Assistant:</strong>
+                        <p class="mb-0 mt-2">${responses}</p>
+                    </div>
+                `;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1000);
+        }
+
+        function getAIResponse(message) {
+            if (message.includes('revenue') || message.includes('sales')) {
+                return "Based on current trends, revenue is projected to increase by 32% next month. The AI model predicts peak sales on weekdays between 10 AM - 2 PM. I recommend focusing marketing efforts during these hours.";
+            }
+            if (message.includes('lead') || message.includes('conversion')) {
+                return "Lead quality has improved by 15% this week. Conversion rates are highest for leads from LinkedIn (28%) vs other channels. Consider allocating 40% more budget to LinkedIn campaigns.";
+            }
+            if (message.includes('predict') || message.includes('forecast')) {
+                return "AI forecasts show: Q2 revenue will likely reach $485K (±12%). Customer acquisition cost will decrease by 8%. Churn risk is elevated for 23 accounts - recommend proactive engagement.";
+            }
+            if (message.includes('customer') || message.includes('segment')) {
+                return "Customer segmentation analysis reveals 3 key groups: Enterprise (42% revenue, 18% count), SMB (35% revenue, 54% count), Startups (23% revenue, 28% count). Enterprise segment shows highest LTV.";
+            }
+            return "I've analyzed your query. Our AI systems monitor 47 data points in real-time. Would you like insights on specific metrics like revenue trends, lead quality, customer behavior, or predictive forecasts?";
+        }
+
+        // Simulate Real-time Data Updates
+        function updateMetrics() {
+            const revenue = 45000 + Math.random() * 5000;
+            const leads = 142 + Math.floor(Math.random() * 20);
+            const conversion = 12.5 + Math.random() * 2;
+            const accuracy = 94 + Math.random() * 4;
+
+            document.getElementById('totalRevenue').textContent = `$${Math.floor(revenue).toLocaleString()}`;
+            document.getElementById('newLeads').textContent = leads;
+            document.getElementById('conversionRate').textContent = `${conversion.toFixed(1)}%`;
+            document.getElementById('aiAccuracy').textContent = `${accuracy.toFixed(1)}%`;
+            
+            document.getElementById('revenueTrend').textContent = `+${(Math.random() * 5 + 20).toFixed(1)}%`;
+            document.getElementById('leadsTrend').textContent = `+${(Math.random() * 10 + 15).toFixed(1)}%`;
+            
+            document.getElementById('conversionProgress').style.width = `${conversion * 5}%`;
+            document.getElementById('accuracyProgress').style.width = `${accuracy}%`;
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary') },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: {
+                        ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary') },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                }
+            };
+
+            // Revenue Chart with Predictions
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    datasets: [
+                        {
+                            label: 'Actual Revenue',
+                            data: [30000, 35000, 32000, 42000, 45000, 48000, 47000, 52000],
+                            borderColor: '#4a6bff',
+                            backgroundColor: 'rgba(74, 107, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'AI Prediction',
+                            data: [null, null, null, null, null, null, 47000, 52000, 56000, 59000],
+                            borderColor: '#ff6b8b',
+                            borderDash: [5, 5],
+                            backgroundColor: 'rgba(255, 107, 139, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: chartOptions
+            });
+
+            // Segmentation Chart
+            new Chart(document.getElementById('segmentationChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Enterprise', 'SMB', 'Startups', 'Individual'],
+                    datasets: [{
+                        data: [42, 35, 18, 5],
+                        backgroundColor: ['#4a6bff', '#6c63ff', '#ff6b8b', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                        }
+                    }
+                }
+            });
+
+            // Funnel Chart
+            new Chart(document.getElementById('funnelChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Visitors', 'Leads', 'Qualified', 'Proposals', 'Closed'],
+                    datasets: [{
+                        data: [10000, 2500, 1200, 450, 180],
+                        backgroundColor: [
+                            'rgba(74, 107, 255, 0.8)',
+                            'rgba(108, 99, 255, 0.8)',
+                            'rgba(255, 107, 139, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Geographic Chart
+            new Chart(document.getElementById('geoChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['North America', 'Europe', 'Asia', 'Other'],
+                    datasets: [{
+                        data: [45, 30, 20, 5],
+                        backgroundColor: ['#4a6bff', '#6c63ff', '#ff6b8b', '#10b981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') }
+                        }
+                    }
+                }
+            });
+
+            // Predictions Chart
+            new Chart(document.getElementById('predictionsChart'), {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => `Day ${i + 1}`),
+                    datasets: [{
+                        label: 'Predicted Revenue',
+                        data: Array.from({length: 30}, () => 50000 + Math.random() * 15000),
+                        borderColor: '#4a6bff',
+                        backgroundColor: 'rgba(74, 107, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            updateMetrics();
+            setInterval(updateMetrics, 3000);
+        });
+
+        // Enter key for AI chat
+        document.getElementById('aiChatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendAIMessage();
+        });
+    </script>
+</body>
+</html>

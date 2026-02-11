@@ -1,0 +1,852 @@
+<!-- Save as chatbot.html -->
+<style>
+    /* Advanced Chatbot Styles */
+    .chatbot-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+    }
+
+    .chatbot-toggle {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(74, 107, 255, 0.4);
+        border: 3px solid white;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .chatbot-toggle:hover {
+        transform: scale(1.1) rotate(10deg);
+        box-shadow: 0 15px 40px rgba(74, 107, 255, 0.6);
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--accent);
+        color: white;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 2px solid white;
+        animation: notification-pulse 1.5s infinite;
+    }
+
+    @keyframes notification-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+
+    .chatbot-window {
+        position: fixed;
+        bottom: 120px;
+        right: 30px;
+        width: 420px;
+        height: 580px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px);
+        border-radius: 20px;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--glass-border);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 9998;
+        transform: translateY(20px) scale(0.95);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .chatbot-window.open {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .chatbot-header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chatbot-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .chatbot-avatar {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .chatbot-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: status-pulse 2s infinite;
+    }
+
+    @keyframes status-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .chatbot-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .chatbot-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .chatbot-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: var(--darker);
+    }
+
+    .chatbot-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chatbot-messages::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 3px;
+    }
+
+    .message {
+        display: flex;
+        gap: 12px;
+        animation: messageSlide 0.3s ease;
+        max-width: 85%;
+    }
+
+    @keyframes messageSlide {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .message.bot {
+        align-self: flex-start;
+    }
+
+    .message.user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1rem;
+    }
+
+    .message.bot .message-avatar {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+
+    .message.user .message-avatar {
+        background: var(--accent);
+        color: white;
+    }
+
+    .message-content {
+        background: var(--glass-bg);
+        padding: 15px 20px;
+        border-radius: 20px;
+        line-height: 1.5;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .message.user .message-content {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+
+    .message-content pre {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin: 5px 0;
+    }
+
+    .message-content code {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 5px;
+        padding: 15px 20px;
+        background: var(--glass-bg);
+        border-radius: 20px;
+        width: fit-content;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--text-secondary);
+        border-radius: 50%;
+        animation: typingBounce 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typingBounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+
+    .quick-replies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .quick-reply {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .quick-reply:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .chatbot-input {
+        padding: 20px;
+        background: var(--glass-bg);
+        border-top: 1px solid var(--glass-border);
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .chatbot-input input {
+        flex: 1;
+        padding: 12px 20px;
+        border: 1px solid var(--glass-border);
+        border-radius: 25px;
+        background: var(--darker);
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .chatbot-input input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.1);
+    }
+
+    .chatbot-input button {
+        width: 46px;
+        height: 46px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+    .chatbot-input button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 20px rgba(74, 107, 255, 0.4);
+    }
+
+    .chatbot-input button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 15px 20px;
+        background: var(--darker);
+        border-top: 1px solid var(--glass-border);
+    }
+
+    .suggestion {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        padding: 10px 15px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .suggestion:hover {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .attachment-btn {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .attachment-btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .chatbot-window {
+            width: 90vw;
+            right: 5vw;
+            left: 5vw;
+            height: 70vh;
+        }
+        
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="chatbot-container">
+    <div class="chatbot-toggle" id="chatbotToggle">
+        <i class="fas fa-comment-dots"></i>
+        <span class="notification-badge">3</span>
+    </div>
+    
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <div class="chatbot-info">
+                <div class="chatbot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1">AI Sales Assistant</h5>
+                    <div class="chatbot-status">
+                        <span class="status-dot"></span>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+            <button class="chatbot-close" id="chatbotClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <strong>👋 Hello! I'm your AI Sales Assistant</strong><br><br>
+                    I can help you with:<br>
+                    • Sales analytics & insights 📊<br>
+                    • Marketing strategies 🎯<br>
+                    • Lead generation tips 🚀<br>
+                    • Predictive forecasting 🔮<br><br>
+                    How can I assist you today?
+                    
+                    <div class="quick-replies mt-3">
+                        <div class="quick-reply" onclick="sendQuickReply('sales tips')">Sales Tips</div>
+                        <div class="quick-reply" onclick="sendQuickReply('analytics help')">Analytics Help</div>
+                        <div class="quick-reply" onclick="sendQuickReply('pricing info')">Pricing Info</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="suggestions" id="chatbotSuggestions">
+            <div class="suggestion" onclick="sendQuickReply('show me sales dashboard')">Show Dashboard</div>
+            <div class="suggestion" onclick="sendQuickReply('help with lead generation')">Lead Generation</div>
+            <div class="suggestion" onclick="sendQuickReply('email templates')">Email Templates</div>
+            <div class="suggestion" onclick="sendQuickReply('sales predictions')">Sales Predictions</div>
+        </div>
+        
+        <div class="chatbot-input">
+            <button class="attachment-btn" id="attachBtn">
+                <i class="fas fa-paperclip"></i>
+            </button>
+            <input 
+                type="text" 
+                id="chatbotInput" 
+                placeholder="Ask me anything about sales, marketing, or analytics..."
+                autocomplete="off"
+            />
+            <button id="chatbotSend" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    class AdvancedAIChatbot {
+        constructor() {
+            this.messages = [];
+            this.isTyping = false;
+            this.conversationContext = {
+                userType: 'visitor',
+                interests: [],
+                previousTopics: [],
+                sentiment: 'neutral'
+            };
+            this.initialize();
+        }
+
+        initialize() {
+            this.setupEventListeners();
+            this.loadConversationHistory();
+            this.startPeriodicSuggestions();
+        }
+
+        setupEventListeners() {
+            // Toggle chatbot
+            document.getElementById('chatbotToggle').addEventListener('click', () => this.toggleChatbot());
+            document.getElementById('chatbotClose').addEventListener('click', () => this.closeChatbot());
+            
+            // Send message on Enter
+            document.getElementById('chatbotInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.sendMessage();
+                }
+            });
+            
+            // Attachment button
+            document.getElementById('attachBtn').addEventListener('click', () => this.showAttachmentOptions());
+            
+            // Send button
+            document.getElementById('chatbotSend').addEventListener('click', () => this.sendMessage());
+        }
+
+        toggleChatbot() {
+            const window = document.getElementById('chatbotWindow');
+            window.classList.toggle('open');
+            
+            if (window.classList.contains('open')) {
+                document.getElementById('chatbotInput').focus();
+                // Hide notification badge when opened
+                document.querySelector('.notification-badge').style.display = 'none';
+            }
+        }
+
+        closeChatbot() {
+            document.getElementById('chatbotWindow').classList.remove('open');
+        }
+
+        async sendMessage() {
+            const input = document.getElementById('chatbotInput');
+            const message = input.value.trim();
+            
+            if (!message || this.isTyping) return;
+            
+            // Add user message
+            this.addMessage(message, 'user');
+            input.value = '';
+            
+            // Update context
+            this.updateConversationContext(message, 'user');
+            
+            // Show typing indicator
+            this.showTypingIndicator();
+            
+            // Get AI response
+            const response = await this.generateAIResponse(message);
+            
+            // Remove typing indicator and show response
+            this.hideTypingIndicator();
+            this.addMessage(response, 'bot');
+            
+            // Update context
+            this.updateConversationContext(response, 'bot');
+            
+            // Save to conversation history
+            this.saveConversation(message, response);
+        }
+
+        sendQuickReply(text) {
+            document.getElementById('chatbotInput').value = text;
+            this.sendMessage();
+        }
+
+        addMessage(content, sender) {
+            const messagesDiv = document.getElementById('chatbotMessages');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-${sender === 'bot' ? 'robot' : 'user'}"></i>
+                </div>
+                <div class="message-content">${this.formatMessage(content)}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Add to messages array
+            this.messages.push({
+                content,
+                sender,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        formatMessage(content) {
+            // Convert markdown-like syntax to HTML
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+        }
+
+        showTypingIndicator() {
+            this.isTyping = true;
+            const messagesDiv = document.getElementById('chatbotMessages');
+            const typingDiv = document.createElement('div');
+            
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        hideTypingIndicator() {
+            this.isTyping = false;
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async generateAIResponse(userMessage) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            
+            const responses = this.getResponseTemplates(userMessage.toLowerCase());
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            
+            // Add context-aware modifications
+            return this.enrichResponse(randomResponse, userMessage);
+        }
+
+        getResponseTemplates(message) {
+            // Sales-related responses
+            if (message.includes('sale') || message.includes('revenue') || message.includes('deal')) {
+                return [
+                    "Based on your sales data trends, I recommend focusing on **upselling existing customers** – they convert 60% faster than new leads.\n\n📈 **Pro Tip:** Schedule demos on Tuesdays and Thursdays between 10 AM - 12 PM for 40% higher conversion rates.\n\nWould you like me to analyze your current sales pipeline?",
+                    "Our AI sales analytics show that personalized follow-ups increase close rates by **35%**. Consider implementing:\n\n1. **Automated sequence** for new leads (3 emails + 1 call)\n2. **Personalized video messages** for warm leads\n3. **Case studies** for enterprise prospects\n\nNeed help setting up automation?",
+                    "Sales prediction models indicate **Q2 growth potential of 28%** based on current trends. Key opportunities:\n\n• **SMB segment**: 42% growth potential\n• **Enterprise upsells**: $150K average deal size\n• **APAC region**: Emerging market opportunity\n\nWant a detailed sales forecast report?"
+                ];
+            }
+            
+            // Marketing responses
+            if (message.includes('market') || message.includes('campaign') || message.includes('content')) {
+                return [
+                    "AI content analysis shows **video content** outperforms text by 300% in engagement. Recommendations:\n\n🎥 **Short-form videos** (30-60 seconds)\n📊 **Data visualization** content\n📧 **Interactive email campaigns**\n\nOur AI can generate 50 content ideas in 2 minutes. Interested?",
+                    "Campaign optimization suggestions:\n\n✅ **Best posting times**: 9-11 AM & 7-9 PM weekdays\n✅ **Optimal frequency**: 3-5 posts per week per channel\n✅ **Top-performing formats**: Case studies & customer testimonials\n\nWant me to analyze your current campaign performance?",
+                    "Lead generation strategies that work:\n\n1. **LinkedIn Sponsored Content** – 45% lower CPL\n2. **Webinar Funnel** – 22% conversion rate\n3. **Content Upgrades** – 35% email capture rate\n\nI can help you set up automated lead nurturing sequences."
+                ];
+            }
+            
+            // Analytics responses
+            if (message.includes('analytics') || message.includes('data') || message.includes('report')) {
+                return [
+                    "**Real-time Analytics Dashboard** features:\n\n📊 **Sales Metrics**: Revenue, MRR, ARPU\n👥 **Customer Analytics**: LTV, Churn, Retention\n🎯 **Campaign Performance**: ROI, CTR, Conversion\n📈 **Predictive Insights**: 30-day forecasts\n\nAccess your personalized dashboard → [View Dashboard](dashboard.html)",
+                    "Key metrics to track this week:\n\n• **Lead Velocity Rate**: Target >15%\n• **Customer Acquisition Cost**: Monitor for <$350\n• **Sales Cycle Length**: Aim for <45 days\n• **Win Rate**: Target >25%\n\nI can generate a custom report for your team.",
+                    "Advanced analytics capabilities:\n\n🤖 **Predictive modeling** for next quarter\n🔮 **Trend analysis** with 95% accuracy\n📊 **Comparative analytics** vs industry benchmarks\n💡 **Actionable insights** with recommendations\n\nNeed specific data analysis?"
+                ];
+            }
+            
+            // Pricing responses
+            if (message.includes('price') || message.includes('cost') || message.includes('plan')) {
+                return [
+                    "**Pricing Plans Overview**:\n\n💰 **Starter**: $49/month – Perfect for small teams\n🚀 **Professional**: $149/month – Most popular!\n🏢 **Enterprise**: Custom – For large organizations\n\nAll plans include AI features + 14-day free trial. Which sounds right for you?",
+                    "ROI calculation example:\n\n• **Average user**: Saves 15 hours/week\n• **Value per hour**: $50 (conservative)\n• **Weekly savings**: $750\n• **Monthly ROI**: 5x minimum\n\nWant a personalized ROI projection for your business?",
+                    "Special offers available:\n\n🎯 **Annual discount**: Save 20%\n👥 **Team pricing**: 3+ seats get 15% off\n📚 **Education/Nonprofit**: 30% discount\n\nInterested in any of these options?"
+                ];
+            }
+            
+            // Default responses
+            return [
+                "I can help you with several areas:\n\n**Sales Optimization**:\n• Lead scoring & prioritization\n• Deal forecasting\n• Sales automation workflows\n\n**Marketing**:\n• Content generation\n• Campaign analytics\n• A/B testing\n\n**Analytics**:\n• Real-time dashboards\n• Predictive insights\n• Performance reporting\n\nWhat would you like to explore first?",
+                "Based on similar businesses, here are high-impact strategies:\n\n1. **AI-powered email sequences** (3x better response)\n2. **Predictive lead scoring** (identify hot leads)\n3. **Automated follow-ups** (never miss an opportunity)\n4. **Sales forecasting** (plan with confidence)\n\nWhich area interests you most?",
+                "I notice you're interested in improving sales performance. Here's what I recommend:\n\n📊 **Start with analytics** – Identify bottlenecks\n🤖 **Implement automation** – Save time on repetitive tasks\n🎯 **Optimize targeting** – Focus on high-value prospects\n📈 **Track & iterate** – Continuous improvement\n\nReady to get started?"
+            ];
+        }
+
+        enrichResponse(response, userMessage) {
+            // Add personalized touches based on context
+            let enriched = response;
+            
+            if (this.conversationContext.interests.length > 0) {
+                const interests = this.conversationContext.interests.slice(0, 2).join(', ');
+                enriched += `\n\n*Based on your interest in ${interests}*`;
+            }
+            
+            if (this.conversationContext.sentiment === 'positive') {
+                enriched += '\n\n😊 *Great to see your enthusiasm!*';
+            } else if (this.conversationContext.sentiment === 'frustrated') {
+                enriched += '\n\n🤝 *I understand the frustration. Let me help you find a solution.*';
+            }
+            
+            // Add quick actions
+            enriched += '\n\n<div class="quick-replies">';
+            enriched += '<div class="quick-reply" onclick="chatbot.sendQuickReply(\'show me examples\')">Show Examples</div>';
+            enriched += '<div class="quick-reply" onclick="chatbot.sendQuickReply(\'how to implement\')">How to Implement</div>';
+            enriched += '<div class="quick-reply" onclick="chatbot.sendQuickReply(\'book a demo\')">Book a Demo</div>';
+            enriched += '</div>';
+            
+            return enriched;
+        }
+
+        updateConversationContext(message, sender) {
+            // Track topics of interest
+            const topics = ['sales', 'marketing', 'analytics', 'pricing', 'features'];
+            topics.forEach(topic => {
+                if (message.toLowerCase().includes(topic) && !this.conversationContext.interests.includes(topic)) {
+                    this.conversationContext.interests.push(topic);
+                }
+            });
+            
+            // Update sentiment
+            const positiveWords = ['great', 'awesome', 'thanks', 'helpful', 'excellent'];
+            const negativeWords = ['bad', 'poor', 'frustrating', 'difficult', 'problem'];
+            
+            if (positiveWords.some(word => message.includes(word))) {
+                this.conversationContext.sentiment = 'positive';
+            } else if (negativeWords.some(word => message.includes(word))) {
+                this.conversationContext.sentiment = 'frustrated';
+            }
+            
+            // Store previous topics
+            if (sender === 'user') {
+                this.conversationContext.previousTopics.push(message.substring(0, 50));
+                if (this.conversationContext.previousTopics.length > 5) {
+                    this.conversationContext.previousTopics.shift();
+                }
+            }
+        }
+
+        showAttachmentOptions() {
+            const options = [
+                { icon: 'fa-file-csv', text: 'Upload CSV', accept: '.csv' },
+                { icon: 'fa-file-excel', text: 'Excel File', accept: '.xlsx,.xls' },
+                { icon: 'fa-file-pdf', text: 'PDF Report', accept: '.pdf' },
+                { icon: 'fa-image', text: 'Screenshots', accept: '.jpg,.png,.gif' }
+            ];
+            
+            // Create modal or dropdown for attachments
+            alert('Attachment feature would open file selector here. In production, this would handle file uploads.');
+        }
+
+        saveConversation(userMessage, botResponse) {
+            const conversation = {
+                userMessage,
+                botResponse,
+                timestamp: new Date().toISOString(),
+                context: { ...this.conversationContext }
+            };
+            
+            // Save to localStorage
+            let history = JSON.parse(localStorage.getItem('chatbotHistory') || '[]');
+            history.push(conversation);
+            
+            // Keep only last 100 conversations
+            if (history.length > 100) {
+                history = history.slice(-100);
+            }
+            
+            localStorage.setItem('chatbotHistory', JSON.stringify(history));
+        }
+
+        loadConversationHistory() {
+            const history = JSON.parse(localStorage.getItem('chatbotHistory') || '[]');
+            
+            // Load last 5 conversations
+            history.slice(-5).forEach(conv => {
+                this.addMessage(conv.userMessage, 'user');
+                this.addMessage(conv.botResponse, 'bot');
+            });
+        }
+
+        startPeriodicSuggestions() {
+            // Change suggestions every 30 seconds
+            setInterval(() => {
+                this.updateSuggestions();
+            }, 30000);
+        }
+
+        updateSuggestions() {
+            const suggestions = [
+                ['Analyze sales data', 'Marketing ROI', 'Lead scoring', 'Content ideas'],
+                ['Sales forecast', 'Campaign tips', 'Team performance', 'Integration help'],
+                ['ROI calculator', 'Best practices', 'Case studies', 'Technical support']
+            ];
+            
+            const randomSet = suggestions[Math.floor(Math.random() * suggestions.length)];
+            const suggestionsDiv = document.getElementById('chatbotSuggestions');
+            
+            suggestionsDiv.innerHTML = randomSet.map(text => 
+                `<div class="suggestion" onclick="chatbot.sendQuickReply('${text.toLowerCase()}')">${text}</div>`
+            ).join('');
+        }
+
+        exportConversation() {
+            const history = JSON.parse(localStorage.getItem('chatbotHistory') || '[]');
+            const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chatbot-history-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+    }
+
+    // Initialize chatbot when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        window.chatbot = new AdvancedAIChatbot();
+        
+        // Auto-open chatbot for new visitors
+        if (!localStorage.getItem('chatbotVisited')) {
+            setTimeout(() => {
+                document.getElementById('chatbotToggle').click();
+                localStorage.setItem('chatbotVisited', 'true');
+            }, 3000);
+        }
+    });
+</script>

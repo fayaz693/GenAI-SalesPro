@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | GenAI SalesPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --secondary: #6c63ff;
+            --accent: #ff6b8b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --darker: #0a0f1f;
+            --glass-bg: rgba(30, 41, 59, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --sidebar-width: 260px;
+        }
+
+        [data-bs-theme="light"] {
+            --dark: #f8fafc;
+            --darker: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark), var(--darker));
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-header h4 {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--darker);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(74, 107, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Mobile Toggle */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1rem 2rem;
+            margin: 0 -2rem 2rem -2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: var(--darker);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: rgba(74, 107, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(74, 107, 255, 0.2);
+        }
+
+        /* Stats Card */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .stat-change.up {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .stat-change.down {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Chart Container */
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+            margin-top: 1rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-tab {
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .chart-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Activity Item */
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background: var(--darker);
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(74, 107, 255, 0.1);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Task Item */
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background: var(--darker);
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(74, 107, 255, 0.1);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed strong {
+            text-decoration: line-through;
+        }
+
+        /* Lead Item */
+        .lead-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--darker);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .lead-item:hover {
+            background: rgba(74, 107, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .lead-score {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .lead-score.hot {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .lead-score.warm {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .lead-score.cold {
+            background: rgba(74, 107, 255, 0.2);
+            color: var(--primary);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .quick-action-btn {
+            background: var(--darker);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .quick-action-btn:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .quick-action-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* AI Insights */
+        .ai-insight {
+            background: linear-gradient(135deg, rgba(74, 107, 255, 0.1), rgba(108, 99, 255, 0.1));
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 1rem;
+        }
+
+        .ai-insight-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            border-radius: 8px;
+            color: white;
+            margin-right: 0.5rem;
+        }
+
+        /* File Upload Styles */
+        .upload-area {
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--darker);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(74, 107, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--darker);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-size {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .file-progress {
+            width: 100%;
+            height: 4px;
+            background: var(--glass-border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .file-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .delete-file {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .delete-file:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .top-bar {
+                padding: 1rem;
+                margin: 0 -1rem 1rem -1rem;
+            }
+
+            .stat-value {
+                font-size: 1.75rem;
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-brain me-2"></i>GenAI SalesPro</h4>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">JD</div>
+            <div>
+                <strong class="d-block" style="font-size: 0.95rem;" id="userName">John Doe</strong>
+                <small class="text-secondary" id="userRole">Sales Manager</small>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link active">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showLeads()">
+                    <i class="fas fa-users"></i>
+                    <span>Leads</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showDeals()">
+                    <i class="fas fa-handshake"></i>
+                    <span>Deals</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showAnalytics()">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showCampaigns()">
+                    <i class="fas fa-envelope"></i>
+                    <span>Campaigns</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showTasks()">
+                    <i class="fas fa-tasks"></i>
+                    <span>Tasks</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showAIAssistant()">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="showDataUpload()">
+                    <i class="fas fa-file-upload"></i>
+                    <span>Data Upload</span>
+                </a>
+            </li>
+        </ul>
+
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" onclick="showSettings()">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="index.html" class="sidebar-link" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h2 id="welcomeMessage">Welcome back, John! 👋</h2>
+                <p class="text-secondary mb-0" style="font-size: 0.9rem;" id="companyInfo">Here's what's happening with your sales today</p>
+            </div>
+            <div class="top-bar-actions">
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">3</span>
+                </button>
+                <button class="notification-btn" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card stat-card">
+                    <div class="stat-icon" style="background: rgba(74, 107, 255, 0.2); color: var(--primary);">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" id="revenue">$0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="revenueChange">+24.5%</span> from last month
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card stat-card">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.2); color: var(--success);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-label">Active Leads</div>
+                    <div class="stat-value" id="leads">0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+18.2%</span> from last month
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card stat-card">
+                    <div class="stat-icon" style="background: rgba(255, 107, 139, 0.2); color: var(--accent);">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="stat-label">Deals Closed</div>
+                    <div class="stat-value" id="conversions">0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12.8%</span> from last month
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card stat-card">
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.2); color: var(--warning);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-label">Conversion Rate</div>
+                    <div class="stat-value" id="conversionRate">0%</div>
+                    <div class="stat-change down">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>-2.1%</span> from last month
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Upload Section (Initially hidden) -->
+        <div class="row g-3 mb-4" id="dataUploadSection" style="display: none;">
+            <div class="col-12">
+                <div class="glass-card">
+                    <h5 class="mb-3"><i class="fas fa-file-upload me-2"></i>Upload Your Sales Data</h5>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h5 class="mb-2">Drag & Drop Files Here</h5>
+                        <p class="text-secondary mb-3">or click to browse files</p>
+                        <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls,.txt,.json" style="display: none;">
+                        <button class="btn btn-gradient" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse Files
+                        </button>
+                        <p class="text-secondary mt-3 mb-0">
+                            Supported formats: CSV, Excel, TXT, JSON (Max 10MB per file)
+                        </p>
+                    </div>
+
+                    <div id="fileList" class="file-list"></div>
+
+                    <div class="mt-4">
+                        <h6 class="mb-3">How your data will be used:</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="ai-insight">
+                                    <div class="ai-insight-icon"><i class="fas fa-chart-line"></i></div>
+                                    <strong>Revenue Prediction</strong>
+                                    <p class="mb-1 mt-2">Analyze historical data to predict future revenue trends</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="ai-insight">
+                                    <div class="ai-insight-icon"><i class="fas fa-user-check"></i></div>
+                                    <strong>Lead Scoring</strong>
+                                    <p class="mb-1 mt-2">Automatically score and prioritize leads based on behavior</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="ai-insight">
+                                    <div class="ai-insight-icon"><i class="fas fa-lightbulb"></i></div>
+                                    <strong>AI Insights</strong>
+                                    <p class="mb-1 mt-2">Generate actionable insights and recommendations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="row g-3 mb-4" id="aiInsightsSection">
+            <div class="col-12">
+                <div class="glass-card">
+                    <h5 class="mb-3"><i class="fas fa-brain me-2"></i>AI Insights & Recommendations</h5>
+                    <div class="ai-insight">
+                        <div class="ai-insight-icon"><i class="fas fa-lightbulb"></i></div>
+                        <strong>Opportunity Detected:</strong>
+                        <p class="mb-1 mt-2">15 leads are showing high engagement but haven't been contacted in 3+ days. Reach out now to increase conversion chances by 34%.</p>
+                    </div>
+                    <div class="ai-insight">
+                        <div class="ai-insight-icon"><i class="fas fa-chart-bar"></i></div>
+                        <strong>Performance Insight:</strong>
+                        <p class="mb-1 mt-2">Your email open rates are 47% higher on Tuesday mornings. Schedule your next campaign for optimal results.</p>
+                    </div>
+                    <div class="ai-insight" id="personalizedInsight" style="display: none;">
+                        <div class="ai-insight-icon"><i class="fas fa-user-cog"></i></div>
+                        <strong>Personalized for <span id="companyNamePlaceholder">Your Company</span>:</strong>
+                        <p class="mb-1 mt-2" id="personalizedInsightText">Loading personalized insights...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Quick Actions -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-8">
+                <div class="glass-card">
+                    <div class="chart-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Revenue Trends</h5>
+                        <div class="chart-tabs">
+                            <button class="chart-tab active" onclick="updateChart('week')">Week</button>
+                            <button class="chart-tab" onclick="updateChart('month')">Month</button>
+                            <button class="chart-tab" onclick="updateChart('year')">Year</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="glass-card">
+                    <h5 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                    <div class="quick-actions">
+                        <a href="#" class="quick-action-btn" onclick="addLead()">
+                            <i class="fas fa-user-plus"></i>
+                            <div>Add Lead</div>
+                        </a>
+                        <a href="#" class="quick-action-btn" onclick="createDeal()">
+                            <i class="fas fa-handshake"></i>
+                            <div>New Deal</div>
+                        </a>
+                        <a href="#" class="quick-action-btn" onclick="sendCampaign()">
+                            <i class="fas fa-envelope"></i>
+                            <div>Campaign</div>
+                        </a>
+                        <a href="#" class="quick-action-btn" onclick="scheduleCall()">
+                            <i class="fas fa-phone"></i>
+                            <div>Schedule Call</div>
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="mb-3">Sales Pipeline</h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary" style="font-size: 0.9rem;">Prospecting</span>
+                                <span style="font-weight: 600;">45</span>
+                            </div>
+                            <div class="progress" style="height: 8px; background: var(--darker);">
+                                <div class="progress-bar" style="width: 65%; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary" style="font-size: 0.9rem;">Qualification</span>
+                                <span style="font-weight: 600;">28</span>
+                            </div>
+                            <div class="progress" style="height: 8px; background: var(--darker);">
+                                <div class="progress-bar" style="width: 45%; background: linear-gradient(90deg, var(--success), var(--primary));"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary" style="font-size: 0.9rem;">Proposal</span>
+                                <span style="font-weight: 600;">12</span>
+                            </div>
+                            <div class="progress" style="height: 8px; background: var(--darker);">
+                                <div class="progress-bar" style="width: 30%; background: linear-gradient(90deg, var(--warning), var(--primary));"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary" style="font-size: 0.9rem;">Negotiation</span>
+                                <span style="font-weight: 600;">8</span>
+                            </div>
+                            <div class="progress" style="height: 8px; background: var(--darker);">
+                                <div class="progress-bar" style="width: 20%; background: linear-gradient(90deg, var(--accent), var(--primary));"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hot Leads and Tasks -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-6">
+                <div class="glass-card">
+                    <h5 class="mb-3"><i class="fas fa-fire me-2"></i>Hot Leads</h5>
+                    <div id="leadsContainer">
+                        <div class="lead-item">
+                            <div>
+                                <strong class="d-block">TechCorp Solutions</strong>
+                                <small class="text-secondary">Enterprise • $45,000 deal value</small>
+                            </div>
+                            <span class="lead-score hot">97</span>
+                        </div>
+                        <div class="lead-item">
+                            <div>
+                                <strong class="d-block">Innovation Labs</strong>
+                                <small class="text-secondary">SMB • $12,500 deal value</small>
+                            </div>
+                            <span class="lead-score hot">94</span>
+                        </div>
+                        <div class="lead-item">
+                            <div>
+                                <strong class="d-block">Digital Dynamics</strong>
+                                <small class="text-secondary">Mid-Market • $28,000 deal value</small>
+                            </div>
+                            <span class="lead-score warm">86</span>
+                        </div>
+                        <div class="lead-item">
+                            <div>
+                                <strong class="d-block">Future Systems Inc</strong>
+                                <small class="text-secondary">Enterprise • $67,000 deal value</small>
+                            </div>
+                            <span class="lead-score warm">81</span>
+                        </div>
+                        <div class="lead-item">
+                            <div>
+                                <strong class="d-block">CloudFirst Partners</strong>
+                                <small class="text-secondary">SMB • $9,800 deal value</small>
+                            </div>
+                            <span class="lead-score cold">72</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="glass-card">
+                    <h5 class="mb-3"><i class="fas fa-tasks me-2"></i>Today's Tasks</h5>
+                    <div id="tasksContainer">
+                        <div class="task-item" onclick="toggleTask(this)">
+                            <input type="checkbox" class="task-checkbox" onclick="event.stopPropagation();">
+                            <div class="flex-grow-1">
+                                <strong class="d-block">Follow up with TechCorp</strong>
+                                <small class="text-secondary">Due today • High priority</small>
+                            </div>
+                        </div>
+                        <div class="task-item" onclick="toggleTask(this)">
+                            <input type="checkbox" class="task-checkbox" onclick="event.stopPropagation();">
+                            <div class="flex-grow-1">
+                                <strong class="d-block">Prepare proposal for Innovation Labs</strong>
+                                <small class="text-secondary">Due today • Medium priority</small>
+                            </div>
+                        </div>
+                        <div class="task-item completed" onclick="toggleTask(this)">
+                            <input type="checkbox" class="task-checkbox" checked onclick="event.stopPropagation();">
+                            <div class="flex-grow-1">
+                                <strong class="d-block">Send campaign emails</strong>
+                                <small class="text-secondary">Completed</small>
+                            </div>
+                        </div>
+                        <div class="task-item" onclick="toggleTask(this)">
+                            <input type="checkbox" class="task-checkbox" onclick="event.stopPropagation();">
+                            <div class="flex-grow-1">
+                                <strong class="d-block">Review Q2 performance metrics</strong>
+                                <small class="text-secondary">Due tomorrow</small>
+                            </div>
+                        </div>
+                        <div class="task-item" onclick="toggleTask(this)">
+                            <input type="checkbox" class="task-checkbox" onclick="event.stopPropagation();">
+                            <div class="flex-grow-1">
+                                <strong class="d-block">Team meeting at 3 PM</strong>
+                                <small class="text-secondary">Due today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity and Performance -->
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="glass-card">
+                    <h5 class="mb-3"><i class="fas fa-bell me-2"></i>Recent Activity</h5>
+                    <div id="activityContainer">
+                        <!-- Activities will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="glass-card">
+                    <h5 class="mb-3"><i class="fas fa-trophy me-2"></i>Top Performers</h5>
+                    <div class="chart-wrapper" style="height: 300px;">
+                        <canvas id="performersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-bs-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', newTheme);
+            themeToggle.querySelector('i').className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('theme', newTheme);
+            
+            // Reinitialize charts with new theme
+            initCharts();
+        });
+
+        // Load theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-bs-theme', savedTheme);
+        themeToggle.querySelector('i').className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Load User Data from Signup
+        function loadUserData() {
+            const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const signupData = userData.signupData || {};
+            
+            // Update user profile
+            document.getElementById('userName').textContent = userData.name || 'John Doe';
+            document.getElementById('userRole').textContent = userData.role || 'Sales Manager';
+            document.getElementById('welcomeMessage').textContent = `Welcome back, ${userData.name || 'John'}! 👋`;
+            
+            // Update company info
+            if (signupData.companyName) {
+                document.getElementById('companyInfo').textContent = 
+                    `${signupData.companyName} • ${signupData.industry || 'Sales Dashboard'}`;
+                document.getElementById('companyNamePlaceholder').textContent = signupData.companyName;
+            }
+            
+            // Update user avatar initials
+            const avatar = document.getElementById('userAvatar');
+            if (userData.name) {
+                const initials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                avatar.textContent = initials.substring(0, 2);
+            }
+            
+            // Show personalized insight if company data exists
+            if (signupData.companyName) {
+                document.getElementById('personalizedInsight').style.display = 'block';
+                generatePersonalizedInsight(signupData);
+            }
+            
+            // Update stats based on signup data
+            updateStatsFromSignup(signupData);
+        }
+
+        // Update stats based on signup data
+        function updateStatsFromSignup(signupData) {
+            if (signupData.monthlyTarget) {
+                const target = parseFloat(signupData.monthlyTarget);
+                if (target > 0) {
+                    // Set revenue to 75% of target (simulating current performance)
+                    const currentRevenue = target * 0.75;
+                    document.getElementById('revenue').textContent = `$${Math.round(currentRevenue).toLocaleString()}`;
+                }
+            }
+            
+            if (signupData.conversionRate) {
+                const rate = parseFloat(signupData.conversionRate);
+                document.getElementById('conversionRate').textContent = `${rate.toFixed(1)}%`;
+            }
+            
+            // Update other stats based on signup data
+            if (signupData.companySize) {
+                const size = signupData.companySize;
+                let leads = 100;
+                let deals = 25;
+                
+                // Adjust based on company size
+                if (size.includes('11-50')) {
+                    leads = 250;
+                    deals = 60;
+                } else if (size.includes('51-200')) {
+                    leads = 500;
+                    deals = 120;
+                } else if (size.includes('201-500')) {
+                    leads = 1000;
+                    deals = 250;
+                } else if (size.includes('500+')) {
+                    leads = 2000;
+                    deals = 500;
+                }
+                
+                document.getElementById('leads').textContent = leads.toLocaleString();
+                document.getElementById('conversions').textContent = deals.toLocaleString();
+            }
+        }
+
+        // Generate personalized AI insight
+        function generatePersonalizedInsight(signupData) {
+            const insights = [
+                `Based on your ${signupData.companySize} team size, focusing on ${signupData.industry} industry, our AI suggests implementing automated follow-ups to increase conversions by up to 40%.`,
+                `Your ${signupData.annualRevenue} revenue range indicates significant growth potential. Consider expanding your ${signupData.salesChallenge} strategy to capture more market share.`,
+                `With a ${signupData.companySize} team, leveraging AI-powered lead scoring could reduce your sales cycle by 30% and increase deal size by 25%.`,
+                `Our analysis of similar ${signupData.industry} companies shows that optimizing your ${signupData.salesChallenge} process could boost revenue by $${(parseInt(signupData.monthlyTarget || '10000') * 0.35).toLocaleString()} monthly.`
+            ];
+            
+            const randomInsight = insights[Math.floor(Math.random() * insights.length)];
+            document.getElementById('personalizedInsightText').textContent = randomInsight;
+        }
+
+        // Animate Stats
+        function animateValue(element, start, end, duration) {
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    element.textContent = element.id === 'revenue' ? `$${Math.floor(end).toLocaleString()}` : 
+                                         element.id === 'conversionRate' ? `${end.toFixed(1)}%` : 
+                                         Math.floor(end).toString();
+                    clearInterval(timer);
+                } else {
+                    element.textContent = element.id === 'revenue' ? `$${Math.floor(current).toLocaleString()}` : 
+                                         element.id === 'conversionRate' ? `${current.toFixed(1)}%` : 
+                                         Math.floor(current).toString();
+                }
+            }, 16);
+        }
+
+        // Initialize Stats
+        function initStats() {
+            const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const signupData = userData.signupData || {};
+            
+            // Use signup data or defaults
+            const revenueTarget = parseFloat(signupData.monthlyTarget) || 124580;
+            const leadsCount = signupData.companySize ? 
+                (signupData.companySize.includes('500+') ? 2000 : 
+                 signupData.companySize.includes('201-500') ? 1000 :
+                 signupData.companySize.includes('51-200') ? 500 :
+                 signupData.companySize.includes('11-50') ? 250 : 100) : 342;
+            
+            const conversionRate = parseFloat(signupData.conversionRate) || 12.8;
+            const conversionsCount = Math.round(leadsCount * (conversionRate / 100));
+            
+            animateValue(document.getElementById('revenue'), 0, revenueTarget, 2000);
+            animateValue(document.getElementById('leads'), 0, leadsCount, 2000);
+            animateValue(document.getElementById('conversions'), 0, conversionsCount, 2000);
+            animateValue(document.getElementById('conversionRate'), 0, conversionRate, 2000);
+        }
+
+        // Charts
+        let revenueChart, performersChart;
+
+        function initCharts() {
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-primary').trim();
+            const gridColor = 'rgba(255, 255, 255, 0.05)';
+
+            // Destroy existing charts
+            if (revenueChart) revenueChart.destroy();
+            if (performersChart) performersChart.destroy();
+
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [65000, 78000, 72000, 88000, 95000, 110000, 124580],
+                        borderColor: '#4a6bff',
+                        backgroundColor: 'rgba(74, 107, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: textColor }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `Revenue: $${context.parsed.y.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { 
+                                color: textColor,
+                                callback: value => `$${value / 1000}K`
+                            },
+                            grid: { color: gridColor }
+                        },
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        }
+                    }
+                }
+            });
+
+            // Performers Chart
+            const performersCtx = document.getElementById('performersChart').getContext('2d');
+            performersChart = new Chart(performersCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sarah M.', 'John D.', 'Emily R.', 'Mike T.', 'Lisa K.'],
+                    datasets: [{
+                        label: 'Deals Closed',
+                        data: [25, 22, 19, 17, 15],
+                        backgroundColor: [
+                            'rgba(74, 107, 255, 0.8)',
+                            'rgba(108, 99, 255, 0.8)',
+                            'rgba(255, 107, 139, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        },
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update chart data
+        function updateChart(period) {
+            // Update tab active state
+            document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update chart data based on period
+            const dataMap = {
+                week: [18000, 22000, 19000, 25000, 28000, 32000, 35000],
+                month: [65000, 78000, 72000, 88000, 95000, 110000, 124580],
+                year: [480000, 520000, 580000, 650000, 720000, 820000, 920000, 1050000, 1180000, 1290000, 1420000, 1550000]
+            };
+
+            const labelsMap = {
+                week: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                month: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                year: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            };
+
+            revenueChart.data.labels = labelsMap[period];
+            revenueChart.data.datasets[0].data = dataMap[period];
+            revenueChart.update();
+        }
+
+        // Task toggle
+        function toggleTask(taskElement) {
+            const checkbox = taskElement.querySelector('.task-checkbox');
+            checkbox.checked = !checkbox.checked;
+            taskElement.classList.toggle('completed');
+        }
+
+        // Quick actions
+        function addLead() {
+            alert('Add Lead functionality - This would open a modal to add a new lead');
+        }
+
+        function createDeal() {
+            alert('Create Deal functionality - This would open a modal to create a new deal');
+        }
+
+        function sendCampaign() {
+            alert('Send Campaign functionality - This would open the campaign builder');
+        }
+
+        function scheduleCall() {
+            alert('Schedule Call functionality - This would open a calendar scheduler');
+        }
+
+        // Populate activities
+        function populateActivities() {
+            const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const companyName = userData.signupData?.companyName || 'Your Company';
+            
+            const activities = [
+                { icon: 'user-plus', color: 'var(--primary)', bg: 'rgba(74, 107, 255, 0.2)', title: 'New lead generated', desc: `Enterprise - ${companyName}`, time: '2 minutes ago' },
+                { icon: 'handshake', color: 'var(--success)', bg: 'rgba(16, 185, 129, 0.2)', title: 'Deal closed', desc: '$25,000 contract signed', time: '1 hour ago' },
+                { icon: 'envelope', color: 'var(--warning)', bg: 'rgba(245, 158, 11, 0.2)', title: 'Campaign sent', desc: 'Email blast to 500 contacts', time: '3 hours ago' },
+                { icon: 'phone', color: 'var(--accent)', bg: 'rgba(255, 107, 139, 0.2)', title: 'Call scheduled', desc: `Demo with ${companyName}`, time: '5 hours ago' },
+                { icon: 'chart-line', color: 'var(--success)', bg: 'rgba(16, 185, 129, 0.2)', title: 'Goal achieved', desc: 'Monthly target exceeded', time: '1 day ago' }
+            ];
+
+            const container = document.getElementById('activityContainer');
+            container.innerHTML = activities.map(a => `
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: ${a.bg}; color: ${a.color};">
+                        <i class="fas fa-${a.icon}"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block">${a.title}</strong>
+                        <small class="text-secondary">${a.desc}</small>
+                        <small class="text-secondary d-block">${a.time}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // File Upload Functions
+        let uploadedFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+
+        function initializeFileUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            // Click to upload
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                handleFiles(files);
+            });
+
+            // Load existing files
+            renderFileList();
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    alert(`File "${file.name}" exceeds 10MB limit`);
+                    continue;
+                }
+
+                // Check if file already exists
+                const existingFile = uploadedFiles.find(f => f.name === file.name && f.size === file.size);
+                if (existingFile) {
+                    if (!confirm(`File "${file.name}" already exists. Replace it?`)) {
+                        continue;
+                    }
+                    // Remove existing file
+                    uploadedFiles = uploadedFiles.filter(f => f !== existingFile);
+                }
+
+                // Add file to list
+                const fileObj = {
+                    id: Date.now() + Math.random(),
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    uploaded: new Date().toISOString(),
+                    processed: false,
+                    data: null // In real app, you'd store the actual file data
+                };
+
+                uploadedFiles.push(fileObj);
+                
+                // Simulate file processing
+                simulateFileProcessing(fileObj);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+            
+            // Update dashboard based on uploaded files
+            updateDashboardFromFiles();
+            
+            // Render file list
+            renderFileList();
+        }
+
+        function simulateFileProcessing(file) {
+            const fileElement = document.querySelector(`[data-file-id="${file.id}"]`);
+            if (!fileElement) return;
+
+            const progressBar = fileElement.querySelector('.file-progress-bar');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Mark as processed
+                    const fileIndex = uploadedFiles.findIndex(f => f.id === file.id);
+                    if (fileIndex !== -1) {
+                        uploadedFiles[fileIndex].processed = true;
+                        localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+                        
+                        // Update UI
+                        const statusElement = fileElement.querySelector('.file-status');
+                        statusElement.textContent = 'Processed';
+                        statusElement.style.color = 'var(--success)';
+                        
+                        // Update dashboard with new data
+                        updateDashboardFromFiles();
+                    }
+                }
+            }, 100);
+        }
+
+        function renderFileList() {
+            const fileList = document.getElementById('fileList');
+            
+            if (uploadedFiles.length === 0) {
+                fileList.innerHTML = `
+                    <div class="text-center py-4 text-secondary">
+                        <i class="fas fa-file-upload mb-3" style="font-size: 2rem;"></i>
+                        <p>No files uploaded yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            fileList.innerHTML = uploadedFiles.map(file => `
+                <div class="file-item" data-file-id="${file.id}">
+                    <div class="file-icon" style="background: ${getFileColor(file.type)};">
+                        <i class="${getFileIcon(file.type)}"></i>
+                    </div>
+                    <div class="file-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>${file.name}</strong>
+                            <span class="file-status" style="color: ${file.processed ? 'var(--success)' : 'var(--warning)'};">
+                                ${file.processed ? 'Processed' : 'Processing...'}
+                            </span>
+                        </div>
+                        <div class="file-size">
+                            ${formatFileSize(file.size)} • Uploaded ${new Date(file.uploaded).toLocaleDateString()}
+                        </div>
+                        ${!file.processed ? `
+                            <div class="file-progress">
+                                <div class="file-progress-bar"></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <button class="delete-file" onclick="deleteFile('${file.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Start processing for unprocessed files
+            uploadedFiles.filter(f => !f.processed).forEach(file => {
+                simulateFileProcessing(file);
+            });
+        }
+
+        function getFileIcon(fileType) {
+            if (fileType.includes('csv') || fileType.includes('spreadsheet')) {
+                return 'fas fa-file-csv';
+            } else if (fileType.includes('excel') || fileType.includes('sheet')) {
+                return 'fas fa-file-excel';
+            } else if (fileType.includes('json')) {
+                return 'fas fa-file-code';
+            } else if (fileType.includes('text')) {
+                return 'fas fa-file-alt';
+            } else {
+                return 'fas fa-file';
+            }
+        }
+
+        function getFileColor(fileType) {
+            if (fileType.includes('csv') || fileType.includes('spreadsheet')) {
+                return 'rgba(16, 185, 129, 0.2)';
+            } else if (fileType.includes('excel') || fileType.includes('sheet')) {
+                return 'rgba(16, 185, 129, 0.2)';
+            } else if (fileType.includes('json')) {
+                return 'rgba(245, 158, 11, 0.2)';
+            } else if (fileType.includes('text')) {
+                return 'rgba(74, 107, 255, 0.2)';
+            } else {
+                return 'rgba(108, 99, 255, 0.2)';
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function deleteFile(fileId) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                uploadedFiles = uploadedFiles.filter(f => f.id !== fileId);
+                localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+                renderFileList();
+                updateDashboardFromFiles();
+            }
+        }
+
+        function updateDashboardFromFiles() {
+            const processedFiles = uploadedFiles.filter(f => f.processed);
+            
+            if (processedFiles.length > 0) {
+                // Update stats based on uploaded files
+                const fileCount = processedFiles.length;
+                
+                // Simulate data analysis from files
+                const simulatedLeads = Math.min(1000, fileCount * 150);
+                const simulatedRevenue = Math.min(500000, fileCount * 25000);
+                const simulatedConversions = Math.round(simulatedLeads * 0.12);
+                
+                // Update the dashboard
+                document.getElementById('leads').textContent = simulatedLeads.toLocaleString();
+                document.getElementById('revenue').textContent = `$${simulatedRevenue.toLocaleString()}`;
+                document.getElementById('conversions').textContent = simulatedConversions.toLocaleString();
+                document.getElementById('conversionRate').textContent = '12.0%';
+                
+                // Update AI insights with file-based insights
+                const fileInsight = document.createElement('div');
+                fileInsight.className = 'ai-insight';
+                fileInsight.innerHTML = `
+                    <div class="ai-insight-icon"><i class="fas fa-file-chart"></i></div>
+                    <strong>Data Analysis Complete:</strong>
+                    <p class="mb-1 mt-2">Analyzed ${fileCount} files. Found ${simulatedLeads} potential leads with ${simulatedConversions} conversion opportunities worth $${simulatedRevenue.toLocaleString()}.</p>
+                `;
+                
+                const insightsContainer = document.querySelector('#aiInsightsSection .glass-card');
+                insightsContainer.appendChild(fileInsight);
+                
+                // Update notification badge
+                document.getElementById('notificationCount').textContent = (parseInt(document.getElementById('notificationCount').textContent) + 1).toString();
+            }
+        }
+
+        // Navigation Functions
+        function showDataUpload() {
+            // Hide all sections
+            document.querySelectorAll('.row.g-3').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show upload section
+            document.getElementById('dataUploadSection').style.display = 'flex';
+            
+            // Update active menu
+            updateActiveMenu('Data Upload');
+        }
+
+        function showLeads() {
+            alert('Leads section - Would show leads management interface');
+            updateActiveMenu('Leads');
+        }
+
+        function showDeals() {
+            alert('Deals section - Would show deals pipeline');
+            updateActiveMenu('Deals');
+        }
+
+        function showAnalytics() {
+            alert('Analytics section - Would show detailed analytics');
+            updateActiveMenu('Analytics');
+        }
+
+        function showCampaigns() {
+            alert('Campaigns section - Would show email campaigns');
+            updateActiveMenu('Campaigns');
+        }
+
+        function showTasks() {
+            alert('Tasks section - Would show task management');
+            updateActiveMenu('Tasks');
+        }
+
+        function showAIAssistant() {
+            alert('AI Assistant section - Would show AI chat interface');
+            updateActiveMenu('AI Assistant');
+        }
+
+        function showSettings() {
+            alert('Settings section - Would show user settings');
+            updateActiveMenu('Settings');
+        }
+
+        function updateActiveMenu(section) {
+            // Remove active class from all menu items
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            const activeLink = Array.from(document.querySelectorAll('.sidebar-link')).find(link => 
+                link.textContent.includes(section)
+            );
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('genai_authenticated');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Real-time updates simulation
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                // Update revenue randomly
+                const currentRevenue = parseInt(document.getElementById('revenue').textContent.replace(/[$,]/g, ''));
+                const newRevenue = currentRevenue + Math.floor(Math.random() * 500);
+                document.getElementById('revenue').textContent = `$${newRevenue.toLocaleString()}`;
+                
+                // Update leads randomly
+                const currentLeads = parseInt(document.getElementById('leads').textContent.replace(/,/g, ''));
+                if (Math.random() > 0.7) {
+                    const newLeads = currentLeads + Math.floor(Math.random() * 3);
+                    document.getElementById('leads').textContent = newLeads.toLocaleString();
+                }
+                
+                // Update conversions based on leads
+                const conversionRate = parseFloat(document.getElementById('conversionRate').textContent) / 100;
+                const leads = parseInt(document.getElementById('leads').textContent.replace(/,/g, ''));
+                const newConversions = Math.round(leads * conversionRate);
+                document.getElementById('conversions').textContent = newConversions.toLocaleString();
+            }, 30000); // Update every 30 seconds
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+            initStats();
+            initCharts();
+            populateActivities();
+            initializeFileUpload();
+            simulateRealTimeUpdates();
+            
+            // Check for uploaded files on load
+            setTimeout(updateDashboardFromFiles, 1000);
+        });
+    </script>
+</body>
+</html>

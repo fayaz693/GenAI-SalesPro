@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | GenAI SalesPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --primary-dark: #3a56d4;
+            --secondary: #6c63ff;
+            --accent: #ff6b8b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --darker: #0a0f1f;
+            --light: #f8fafc;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+        }
+
+        [data-bs-theme="light"] {
+            --dark: #f8fafc;
+            --darker: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+        }
+
+        .signup-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .signup-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .signup-left {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;
+            opacity: 0.1;
+        }
+
+        .signup-right {
+            padding: 4rem;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .progress-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--glass-border);
+            z-index: 1;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .progress-step.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .form-step {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .form-control {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: var(--glass-bg);
+            border-color: var(--primary);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .feature-list li i {
+            color: var(--success);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(74, 107, 255, 0.4);
+        }
+
+        .prediction-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .prediction-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ai-suggestion {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(74, 107, 255, 0.1));
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 10px 10px 0;
+            margin-top: 1rem;
+        }
+
+        .industries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .industry-chip {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .industry-chip:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .industry-chip.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .signup-left {
+                padding: 2rem;
+            }
+            
+            .signup-right {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container" data-aos="fade-up">
+        <div class="signup-card">
+            <div class="row g-0">
+                <!-- Left Side - Benefits -->
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="signup-left h-100">
+                        <div class="position-relative z-2">
+                            <a href="index.html" class="text-white text-decoration-none d-inline-block mb-4">
+                                <i class="fas fa-brain me-2"></i>
+                                <span class="fw-bold">GenAI SalesPro</span>
+                            </a>
+                            
+                            <h1 class="display-5 fw-bold mb-4">Start Your AI Sales Journey</h1>
+                            <p class="lead mb-4 opacity-90">Join 12,500+ teams transforming their sales with AI</p>
+                            
+                            <div class="mt-5">
+                                <h5 class="mb-3"><i class="fas fa-check-circle me-2"></i>What you'll get:</h5>
+                                <ul class="feature-list">
+                                    <li><i class="fas fa-check"></i> 14-day free trial, no credit card</li>
+                                    <li><i class="fas fa-check"></i> Personalized AI sales predictions</li>
+                                    <li><i class="fas fa-check"></i> Automated lead scoring system</li>
+                                    <li><i class="fas fa-check"></i> Real-time analytics dashboard</li>
+                                    <li><i class="fas fa-check"></i> 24/7 AI sales assistant</li>
+                                    <li><i class="fas fa-check"></i> Team collaboration tools</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-5 pt-4">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                                         class="rounded-circle me-3" width="50" height="50" alt="User">
+                                    <div>
+                                        <p class="mb-1 fw-bold">"Increased our conversions by 47% in the first month!"</p>
+                                        <p class="mb-0 opacity-75">Sarah Chen, Sales Director</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Side - Form -->
+                <div class="col-lg-6">
+                    <div class="signup-right">
+                        <div class="text-end mb-4">
+                            <a href="signin.html" class="text-decoration-none text-secondary">
+                                Already have an account? <span class="text-primary fw-bold">Sign In</span>
+                            </a>
+                        </div>
+                        
+                        <!-- Progress Indicator -->
+                        <div class="progress-indicator">
+                            <div class="progress-step active" data-step="1">1</div>
+                            <div class="progress-step" data-step="2">2</div>
+                            <div class="progress-step" data-step="3">3</div>
+                            <div class="progress-step" data-step="4">4</div>
+                        </div>
+                        
+                        <!-- Step 1: Basic Information -->
+                        <form id="signupForm" class="form-step active" data-step="1">
+                            <h2 class="mb-4">Create Your Account</h2>
+                            <p class="text-secondary mb-4">Let's start with your basic information</p>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" required>
+                                    <div class="form-text">Minimum 8 characters with uppercase, lowercase, and numbers</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <div></div>
+                                <button type="button" class="btn btn-gradient" onclick="nextStep()">
+                                    Continue <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Step 2: Company Information -->
+                        <form class="form-step" data-step="2">
+                            <h2 class="mb-4">Company Details</h2>
+                            <p class="text-secondary mb-4">Tell us about your business</p>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Company Name</label>
+                                    <input type="text" class="form-control" id="companyName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Website</label>
+                                    <input type="url" class="form-control" id="website" placeholder="https://">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Industry</label>
+                                    <select class="form-control" id="industry" required>
+                                        <option value="">Select Industry</option>
+                                        <option value="saas">SaaS & Technology</option>
+                                        <option value="ecommerce">E-commerce & Retail</option>
+                                        <option value="finance">Finance & Banking</option>
+                                        <option value="healthcare">Healthcare</option>
+                                        <option value="education">Education</option>
+                                        <option value="realestate">Real Estate</option>
+                                        <option value="manufacturing">Manufacturing</option>
+                                        <option value="consulting">Consulting</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Company Size</label>
+                                    <select class="form-control" id="companySize" required>
+                                        <option value="">Select Size</option>
+                                        <option value="1-10">1-10 employees</option>
+                                        <option value="11-50">11-50 employees</option>
+                                        <option value="51-200">51-200 employees</option>
+                                        <option value="201-500">201-500 employees</option>
+                                        <option value="500+">500+ employees</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Annual Revenue</label>
+                                    <select class="form-control" id="annualRevenue" required>
+                                        <option value="">Select Revenue Range</option>
+                                        <option value="0-100k">$0 - $100K</option>
+                                        <option value="100k-1m">$100K - $1M</option>
+                                        <option value="1m-10m">$1M - $10M</option>
+                                        <option value="10m-50m">$10M - $50M</option>
+                                        <option value="50m+">$50M+</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Company Description</label>
+                                    <textarea class="form-control" id="companyDescription" rows="3"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                                    <i class="fas fa-arrow-left me-2"></i>Back
+                                </button>
+                                <button type="button" class="btn btn-gradient" onclick="nextStep()">
+                                    Continue <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Step 3: Sales Goals & Metrics -->
+                        <form class="form-step" data-step="3">
+                            <h2 class="mb-4">Sales Goals & Metrics</h2>
+                            <p class="text-secondary mb-4">Help us personalize your AI sales predictions</p>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Monthly Sales Target</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="monthlyTarget" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Current Conversion Rate</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="conversionRate" min="0" max="100" step="0.1" required>
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Average Deal Size</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="avgDealSize" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Sales Cycle Length (days)</label>
+                                    <input type="number" class="form-control" id="salesCycle" min="1" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Primary Sales Channels</label>
+                                    <div class="industries-grid">
+                                        <div class="industry-chip" data-channel="email">Email</div>
+                                        <div class="industry-chip" data-channel="phone">Phone</div>
+                                        <div class="industry-chip" data-channel="linkedin">LinkedIn</div>
+                                        <div class="industry-chip" data-channel="social">Social Media</div>
+                                        <div class="industry-chip" data-channel="website">Website</div>
+                                        <div class="industry-chip" data-channel="referral">Referrals</div>
+                                        <div class="industry-chip" data-channel="events">Events</div>
+                                        <div class="industry-chip" data-channel="partnerships">Partnerships</div>
+                                    </div>
+                                    <input type="hidden" id="selectedChannels">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Biggest Sales Challenge</label>
+                                    <select class="form-control" id="salesChallenge">
+                                        <option value="">Select Challenge</option>
+                                        <option value="lead_quality">Lead Quality</option>
+                                        <option value="conversion">Conversion Rate</option>
+                                        <option value="followup">Follow-up Process</option>
+                                        <option value="scaling">Scaling Sales</option>
+                                        <option value="competition">Competition</option>
+                                        <option value="pricing">Pricing Strategy</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- AI Prediction Display -->
+                            <div class="prediction-card mt-4" id="predictionCard" style="display: none;">
+                                <h5 class="mb-2">AI Sales Prediction</h5>
+                                <p class="text-secondary mb-3">Based on your metrics, here's what our AI predicts:</p>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="text-center">
+                                            <div class="prediction-value" id="predictedGrowth">0%</div>
+                                            <p class="text-secondary mb-0">Potential Growth</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="text-center">
+                                            <div class="prediction-value" id="predictedRevenue">$0</div>
+                                            <p class="text-secondary mb-0">Monthly Revenue Potential</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ai-suggestion mt-3" id="aiSuggestion">
+                                    <strong><i class="fas fa-lightbulb me-2"></i>AI Suggestion:</strong>
+                                    <p class="mb-0 mt-2" id="suggestionText">Loading suggestions...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                                    <i class="fas fa-arrow-left me-2"></i>Back
+                                </button>
+                                <button type="button" class="btn btn-gradient" onclick="nextStep()">
+                                    Continue <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Step 4: Team & Preferences -->
+                        <form class="form-step" data-step="4">
+                            <h2 class="mb-4">Team & Preferences</h2>
+                            <p class="text-secondary mb-4">Finalize your account setup</p>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Number of Sales Team Members</label>
+                                    <input type="number" class="form-control" id="teamSize" min="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">CRM System</label>
+                                    <select class="form-control" id="crmSystem">
+                                        <option value="">Select CRM</option>
+                                        <option value="salesforce">Salesforce</option>
+                                        <option value="hubspot">HubSpot</option>
+                                        <option value="pipedrive">Pipedrive</option>
+                                        <option value="zoho">Zoho CRM</option>
+                                        <option value="freshsales">Freshsales</option>
+                                        <option value="none">No CRM Currently</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Primary Goal with GenAI SalesPro</label>
+                                    <select class="form-control" id="primaryGoal" required>
+                                        <option value="">Select Primary Goal</option>
+                                        <option value="increase_revenue">Increase Revenue</option>
+                                        <option value="generate_leads">Generate More Leads</option>
+                                        <option value="improve_efficiency">Improve Sales Efficiency</option>
+                                        <option value="reduce_costs">Reduce Customer Acquisition Cost</option>
+                                        <option value="scale_team">Scale Sales Team</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="newsletter" checked>
+                                        <label class="form-check-label" for="newsletter">
+                                            Subscribe to our newsletter for sales tips & updates
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="terms" required>
+                                        <label class="form-check-label" for="terms">
+                                            I agree to the <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                                    <i class="fas fa-arrow-left me-2"></i>Back
+                                </button>
+                                <button type="submit" class="btn btn-gradient" onclick="submitSignup()">
+                                    <i class="fas fa-rocket me-2"></i>Complete Sign Up
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Success Message -->
+                        <div class="text-center py-5" id="successMessage" style="display: none;">
+                            <div class="mb-4">
+                                <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                            </div>
+                            <h2 class="mb-3">Account Created Successfully!</h2>
+                            <p class="text-secondary mb-4">Welcome to GenAI SalesPro. Your AI sales assistant is ready.</p>
+                            <div class="prediction-card mb-4">
+                                <h5 class="mb-3">Your Personalized AI Sales Plan</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <div class="prediction-value" id="finalGrowth">0%</div>
+                                            <p class="text-secondary mb-0">Growth Target</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <div class="prediction-value" id="finalRevenue">$0</div>
+                                            <p class="text-secondary mb-0">Revenue Target</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <div class="prediction-value" id="finalEfficiency">0%</div>
+                                            <p class="text-secondary mb-0">Efficiency Gain</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="dashboard.html" class="btn btn-gradient btn-lg">
+                                <i class="fas fa-chart-line me-2"></i>Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init();
+        
+        let currentStep = 1;
+        const totalSteps = 4;
+        let userData = {};
+        
+        function updateProgress() {
+            // Update progress steps
+            document.querySelectorAll('.progress-step').forEach(step => {
+                const stepNum = parseInt(step.getAttribute('data-step'));
+                step.classList.remove('active', 'completed');
+                
+                if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNum === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Show/hide form steps
+            document.querySelectorAll('.form-step').forEach(form => {
+                form.classList.remove('active');
+                if (parseInt(form.getAttribute('data-step')) === currentStep) {
+                    form.classList.add('active');
+                }
+            });
+        }
+        
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                // Validate current step
+                if (validateStep(currentStep)) {
+                    // Save step data
+                    saveStepData(currentStep);
+                    
+                    currentStep++;
+                    updateProgress();
+                    
+                    // Special handling for step 3
+                    if (currentStep === 3) {
+                        setTimeout(calculatePredictions, 500);
+                    }
+                }
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateProgress();
+            }
+        }
+        
+        function validateStep(step) {
+            const form = document.querySelector(`.form-step[data-step="${step}"]`);
+            const inputs = form.querySelectorAll('[required]');
+            
+            for (let input of inputs) {
+                if (!input.value.trim()) {
+                    input.focus();
+                    input.classList.add('is-invalid');
+                    return false;
+                }
+                input.classList.remove('is-invalid');
+            }
+            
+            // Special validations
+            if (step === 1) {
+                const password = document.getElementById('password');
+                const confirm = document.getElementById('confirmPassword');
+                
+                if (password.value.length < 8) {
+                    alert('Password must be at least 8 characters long');
+                    return false;
+                }
+                
+                if (password.value !== confirm.value) {
+                    alert('Passwords do not match');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function saveStepData(step) {
+            const form = document.querySelector(`.form-step[data-step="${step}"]`);
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                if (input.id) {
+                    userData[input.id] = input.value;
+                }
+            });
+            
+            // Save channels
+            if (step === 3) {
+                const selected = Array.from(document.querySelectorAll('.industry-chip.selected'))
+                    .map(chip => chip.getAttribute('data-channel'));
+                userData.channels = selected;
+            }
+            
+            console.log('User data updated:', userData);
+        }
+        
+        function calculatePredictions() {
+            // Show prediction card
+            document.getElementById('predictionCard').style.display = 'block';
+            
+            // Calculate based on user data
+            const target = parseFloat(userData.monthlyTarget) || 10000;
+            const conversion = parseFloat(userData.conversionRate) || 10;
+            const dealSize = parseFloat(userData.avgDealSize) || 1000;
+            const cycle = parseInt(userData.salesCycle) || 30;
+            
+            // AI calculations
+            const growthPotential = Math.min(95, 40 + (conversion * 0.5) + (target / 10000));
+            const revenuePotential = target * (1 + growthPotential / 100);
+            const efficiencyGain = Math.min(70, 30 + (cycle / 10));
+            
+            // Update display
+            document.getElementById('predictedGrowth').textContent = `${growthPotential.toFixed(1)}%`;
+            document.getElementById('predictedRevenue').textContent = `$${revenuePotential.toLocaleString()}`;
+            
+            // Generate suggestion
+            const suggestions = [
+                `Based on your current metrics, focus on improving lead quality. Our AI suggests implementing lead scoring to prioritize high-intent prospects.`,
+                `With a ${conversion}% conversion rate, you could reach ${(conversion * 1.5).toFixed(1)}% by optimizing your follow-up sequence.`,
+                `Your ${cycle}-day sales cycle can be reduced by ${efficiencyGain}% with automated reminders and follow-ups.`,
+                `Consider implementing AI-powered email templates to increase engagement by up to 300%.`
+            ];
+            
+            document.getElementById('suggestionText').textContent = 
+                suggestions[Math.floor(Math.random() * suggestions.length)];
+        }
+        
+        // Industry chips selection
+        document.querySelectorAll('.industry-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                this.classList.toggle('selected');
+                
+                const selected = Array.from(document.querySelectorAll('.industry-chip.selected'))
+                    .map(c => c.getAttribute('data-channel'));
+                document.getElementById('selectedChannels').value = selected.join(',');
+                
+                // Recalculate predictions when channels change
+                if (currentStep === 3) {
+                    calculatePredictions();
+                }
+            });
+        });
+        
+        // Real-time prediction updates
+        ['monthlyTarget', 'conversionRate', 'avgDealSize', 'salesCycle'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', () => {
+                    if (currentStep === 3) {
+                        calculatePredictions();
+                    }
+                });
+            }
+        });
+        
+        function submitSignup() {
+            if (validateStep(4)) {
+                saveStepData(4);
+                
+                // Save user data to localStorage (simulate API call)
+                localStorage.setItem('genai_user', JSON.stringify(userData));
+                localStorage.setItem('genai_authenticated', 'true');
+                
+                // Calculate final predictions
+                const target = parseFloat(userData.monthlyTarget) || 10000;
+                const conversion = parseFloat(userData.conversionRate) || 10;
+                const growth = 40 + (conversion * 0.5) + (target / 10000);
+                
+                document.getElementById('finalGrowth').textContent = `${Math.min(95, growth).toFixed(1)}%`;
+                document.getElementById('finalRevenue').textContent = `$${Math.round(target * (1 + growth / 100)).toLocaleString()}`;
+                document.getElementById('finalEfficiency').textContent = `${Math.min(70, 30 + (parseInt(userData.salesCycle) || 30) / 10)}%`;
+                
+                // Show success message
+                document.querySelector('.form-step.active').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // Simulate redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 5000);
+            }
+        }
+        
+        // Initialize progress
+        updateProgress();
+    </script>
+</body>
+</html>

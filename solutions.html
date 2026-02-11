@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solutions - GenAI SalesPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        :root {
+            --primary: #4a6bff; --secondary: #6c63ff; --accent: #ff6b8b; --success: #10b981;
+            --dark: #0f172a; --dark-light: #1e293b; --text-color: #f1f5f9;
+            --text-secondary: #94a3b8; --glass-bg: rgba(30, 41, 59, 0.8);
+        }
+        .light-mode {
+            --dark: #f8fafc; --dark-light: #ffffff; --text-color: #1e293b;
+            --text-secondary: #475569; --glass-bg: rgba(255, 255, 255, 0.85);
+        }
+        body { background: var(--dark); color: var(--text-color); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+                 background: var(--glass-bg); backdrop-filter: blur(20px);
+                 border-bottom: 1px solid rgba(255,255,255,0.1); padding: 1rem 0; }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary);
+                text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-links a { color: var(--text-color); text-decoration: none; font-weight: 500;
+                       padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s; }
+        .nav-links a:hover { color: var(--primary); background: rgba(74, 107, 255, 0.1); }
+        .cta-button { background: linear-gradient(135deg, var(--primary), var(--secondary));
+                      color: white; padding: 0.75rem 1.5rem; border-radius: 50px; }
+        .theme-toggle { background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1);
+                        padding: 0.5rem; border-radius: 50%; cursor: pointer;
+                        width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .hero { min-height: 60vh; display: flex; align-items: center; padding: 8rem 0 4rem; text-align: center; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1.5rem;
+                   background: linear-gradient(135deg, var(--primary), var(--secondary));
+                   -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto; }
+        .solutions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                          gap: 2rem; padding: 4rem 0; }
+        .solution-card { background: var(--dark-light); padding: 3rem 2rem; border-radius: 20px;
+                         border: 1px solid rgba(255,255,255,0.1); transition: all 0.4s;
+                         position: relative; overflow: hidden; }
+        .solution-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0;
+                                 height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary));
+                                 transform: scaleX(0); transition: transform 0.4s; }
+        .solution-card:hover::before { transform: scaleX(1); }
+        .solution-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .solution-icon { width: 80px; height: 80px;
+                         background: linear-gradient(135deg, var(--primary), var(--secondary));
+                         border-radius: 20px; display: flex; align-items: center; justify-content: center;
+                         font-size: 2.5rem; color: white; margin-bottom: 1.5rem; }
+        .solution-card h3 { font-size: 1.75rem; margin-bottom: 1rem; }
+        .solution-card p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem; }
+        .benefits-list { list-style: none; padding: 0; margin-bottom: 1.5rem; }
+        .benefits-list li { padding: 0.75rem 0; color: var(--text-secondary);
+                            display: flex; align-items: start; gap: 0.75rem;
+                            border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .benefits-list li:last-child { border-bottom: none; }
+        .benefits-list li i { color: var(--success); margin-top: 0.25rem; font-size: 1.1rem; }
+        .use-cases { background: var(--dark-light); padding: 4rem 0; margin: 4rem 0; border-radius: 20px; }
+        .use-cases h2 { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; }
+        .use-case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .use-case { padding: 2rem; background: var(--dark); border-radius: 15px;
+                    border: 1px solid rgba(255,255,255,0.1); }
+        .use-case h4 { margin-bottom: 0.75rem; color: var(--primary); }
+        .use-case p { color: var(--text-secondary); font-size: 0.95rem; }
+        .cta-section { background: linear-gradient(135deg, var(--primary), var(--secondary));
+                       padding: 5rem 2rem; border-radius: 20px; text-align: center;
+                       color: white; margin: 4rem 0; }
+        .cta-section h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .cta-section p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.95; }
+        .cta-btn { background: white; color: var(--primary); padding: 1rem 2.5rem;
+                   border-radius: 50px; text-decoration: none; font-weight: 600;
+                   display: inline-block; transition: all 0.3s; }
+        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        footer { background: var(--dark-light); padding: 3rem 0 1rem;
+                 border-top: 1px solid rgba(255,255,255,0.1); margin-top: 4rem; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                          gap: 2rem; margin-bottom: 2rem; }
+        .footer-section h3 { margin-bottom: 1rem; }
+        .footer-section ul { list-style: none; }
+        .footer-section ul li { margin-bottom: 0.5rem; }
+        .footer-section ul li a { color: var(--text-secondary); text-decoration: none; }
+        .footer-section ul li a:hover { color: var(--primary); }
+        .footer-bottom { text-align: center; padding-top: 2rem;
+                         border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.5rem; }
+            .solutions-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="index.html" class="logo"><i class="fas fa-brain"></i> GenAI SalesPro</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="solutions.html">Solutions</a></li>
+                <li><a href="pricing.html" class="active">Pricing</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+                <li><a href="dashboard.html" class="cta-button">Dashboard</a></li>
+                <li><button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Solutions for Every Business</h1>
+            <p>Tailored AI-powered solutions designed to solve your unique sales and marketing challenges</p>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="solutions-grid">
+            <div class="solution-card">
+                <div class="solution-icon"><i class="fas fa-chart-line"></i></div>
+                <h3>Sales Team Acceleration</h3>
+                <p>Empower your sales team with AI-driven insights and automation to close deals faster and exceed quotas consistently.</p>
+                <ul class="benefits-list">
+                    <li><i class="fas fa-check-circle"></i> AI-powered lead scoring and prioritization</li>
+                    <li><i class="fas fa-check-circle"></i> Automated follow-up sequences</li>
+                    <li><i class="fas fa-check-circle"></i> Real-time deal intelligence</li>
+                    <li><i class="fas fa-check-circle"></i> Predictive revenue forecasting</li>
+                    <li><i class="fas fa-check-circle"></i> Performance analytics & coaching</li>
+                </ul>
+            </div>
+
+            <div class="solution-card">
+                <div class="solution-icon"><i class="fas fa-bullhorn"></i></div>
+                <h3>Marketing Optimization</h3>
+                <p>Transform your marketing efforts with intelligent automation, content generation, and campaign optimization.</p>
+                <ul class="benefits-list">
+                    <li><i class="fas fa-check-circle"></i> AI content creation at scale</li>
+                    <li><i class="fas fa-check-circle"></i> Multi-channel campaign automation</li>
+                    <li><i class="fas fa-check-circle"></i> Audience segmentation & targeting</li>
+                    <li><i class="fas fa-check-circle"></i> A/B testing & optimization</li>
+                    <li><i class="fas fa-check-circle"></i> ROI tracking & attribution</li>
+                </ul>
+            </div>
+
+            <div class="solution-card">
+                <div class="solution-icon"><i class="fas fa-users"></i></div>
+                <h3>Customer Success</h3>
+                <p>Reduce churn and increase lifetime value with AI-powered customer success and retention strategies.</p>
+                <ul class="benefits-list">
+                    <li><i class="fas fa-check-circle"></i> Churn prediction & prevention</li>
+                    <li><i class="fas fa-check-circle"></i> Health score monitoring</li>
+                    <li><i class="fas fa-check-circle"></i> Proactive engagement triggers</li>
+                    <li><i class="fas fa-check-circle"></i> Upsell & cross-sell opportunities</li>
+                    <li><i class="fas fa-check-circle"></i> Customer sentiment analysis</li>
+                </ul>
+            </div>
+
+            <div class="solution-card">
+                <div class="solution-icon"><i class="fas fa-store"></i></div>
+                <h3>E-Commerce Growth</h3>
+                <p>Boost online sales with personalized product recommendations, dynamic pricing, and conversion optimization.</p>
+                <ul class="benefits-list">
+                    <li><i class="fas fa-check-circle"></i> AI product recommendations</li>
+                    <li><i class="fas fa-check-circle"></i> Dynamic pricing optimization</li>
+                    <li><i class="fas fa-check-circle"></i> Cart abandonment recovery</li>
+                    <li><i class="fas fa-check-circle"></i> Customer journey mapping</li>
+                    <li><i class="fas fa-check-circle"></i> Conversion rate optimization</li>
+                </ul>
+            </div>
+
+            <div class="solution-card">
+                <div class="solution-icon"><i class="fas fa-building"></i></div>
+                <h3>Enterprise Solutions</h3>
+                <p>Scalable AI platform for large organizations with advanced security, compliance, and customization.</p>
+                <ul class="benefits-list">
+                    <li><i class="fas fa-check-circle"></i> Custom AI model training</li>
+                    <li><i class="fas fa-check-circle"></i> Enterprise-grade security</li>
+                    <li><i class="fas fa-check-circle"></i> Dedicated support team</li>
+                    <li><i class="fas fa-check-circle"></i> API & integration services</li>
+                    <li><i class="fas fa-check-circle"></i> Compliance & governance tools</li>
+                </ul>
+            </div>
+
+            <div class="solution-card">
+                <div class="solution-icon"><i class="fas fa-rocket"></i></div>
+                <h3>Startup Growth</h3>
+                <p>Accelerate your startup's growth with affordable AI tools designed for agile teams and rapid scaling.</p>
+                <ul class="benefits-list">
+                    <li><i class="fas fa-check-circle"></i> Quick setup & onboarding</li>
+                    <li><i class="fas fa-check-circle"></i> Pay-as-you-grow pricing</li>
+                    <li><i class="fas fa-check-circle"></i> Growth hacking tools</li>
+                    <li><i class="fas fa-check-circle"></i> Investor-ready analytics</li>
+                    <li><i class="fas fa-check-circle"></i> Community support</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="use-cases container">
+        <h2>Industry Use Cases</h2>
+        <div class="use-case-grid">
+            <div class="use-case">
+                <h4><i class="fas fa-laptop-code"></i> SaaS Companies</h4>
+                <p>Reduce CAC by 35% and increase MRR with automated lead nurturing and product-led growth strategies.</p>
+            </div>
+            <div class="use-case">
+                <h4><i class="fas fa-heartbeat"></i> Healthcare</h4>
+                <p>Improve patient engagement and appointment bookings with HIPAA-compliant AI communication tools.</p>
+            </div>
+            <div class="use-case">
+                <h4><i class="fas fa-graduation-cap"></i> Education</h4>
+                <p>Increase student enrollments by 40% with personalized marketing and automated follow-ups.</p>
+            </div>
+            <div class="use-case">
+                <h4><i class="fas fa-shopping-cart"></i> Retail</h4>
+                <p>Boost in-store and online sales with AI-powered personalization and inventory optimization.</p>
+            </div>
+            <div class="use-case">
+                <h4><i class="fas fa-home"></i> Real Estate</h4>
+                <p>Close more deals with AI lead qualification, virtual tours, and automated property matching.</p>
+            </div>
+            <div class="use-case">
+                <h4><i class="fas fa-chart-pie"></i> Financial Services</h4>
+                <p>Enhance client relationships and cross-selling with AI-driven insights and compliance tools.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="cta-section">
+            <h2>Ready to Transform Your Business?</h2>
+            <p>Join thousands of companies already using AI to drive growth</p>
+            <a href="dashboard.html" class="cta-btn"><i class="fas fa-rocket"></i> Get Started Today</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>GenAI SalesPro</h3>
+                    <p>Empowering sales teams with intelligent AI solutions</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Product</h3>
+                    <ul>
+                        <li><a href="features.html">Features</a></li>
+                        <li><a href="solutions.html">Solutions</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="analytics.html">Analytics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="#">Privacy</a></li>
+                        <li><a href="#">Terms</a></li>
+                        <li><a href="#">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 GenAI SalesPro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const theme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            localStorage.setItem('theme', theme);
+            themeToggle.innerHTML = theme === 'light' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+    </script>
+</body>
+</html>
